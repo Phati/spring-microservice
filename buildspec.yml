@@ -1,0 +1,33 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR....
+      - aws --version
+      # Replace with your aws region
+      - AWS_DEFAULT_REGION=ap-south-1
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 560707388642.dkr.ecr.ap-south-1.amazonaws.com
+      # Get commit hash value(first 7 chars) to tag the image
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      # Replace with your ecr repository name
+      - $REPOSITORY_NAME=spring-microservice
+      # Replace with this your repository URI
+      - REPOSITORY_URI=560707388642.dkr.ecr.ap-south-1.amazonaws.com/spring-microservice
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $REPOSITORY_NAME:$IMAGE_TAG .
+      - docker tag $REPOSITORY_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo pushing to repo
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo Writing image definitions file...
+      # name refers container name(same as given in service task definition)
+      - printf '[{"name":"SpringMicroserviceContainer", "imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+artifacts:
+  files:
+    - imagedefinitions.json
