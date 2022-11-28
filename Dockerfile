@@ -2,6 +2,7 @@ FROM openjdk:11 as builder
 RUN mkdir -p /app/source
 COPY . /app/source
 WORKDIR /app/source
+RUN chmod +x ./mvnw
 RUN ./mvnw clean package
 
 from openjdk:11.0.4-jre-slim-buster

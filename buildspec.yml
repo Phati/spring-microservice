@@ -11,7 +11,7 @@ phases:
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:=latest}
       # Replace with your ecr repository name
-      - $REPOSITORY_NAME=spring-microservice
+      - REPOSITORY_NAME=spring-microservice
       # Replace with this your repository URI
       - REPOSITORY_URI=560707388642.dkr.ecr.ap-south-1.amazonaws.com/spring-microservice
   build:
